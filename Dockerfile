@@ -1,8 +1,8 @@
 FROM openjdk:8u151
 
-### GDAL 2.2.3 ###
+### GDAL 2.3.0 ###
 ENV ROOTDIR /usr/local/
-ENV GDAL_VERSION 2.2.3
+ENV GDAL_VERSION 2.3.0
 ENV OPENJPEG_VERSION 2.2.0
 
 # Load assets
@@ -82,4 +82,3 @@ RUN \
 
 # Output version and capabilities by default.
 CMD gdalinfo --version && gdalinfo --formats && ogrinfo --formats
-
