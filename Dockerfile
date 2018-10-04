@@ -1,9 +1,9 @@
 FROM openjdk:8u151
 
-### GDAL 2.3.0 ###
+### GDAL 2.3.1 ###
 ENV ROOTDIR /usr/local/
-ENV GDAL_VERSION 2.3.0
-ENV OPENJPEG_VERSION 2.2.0
+ENV GDAL_VERSION 2.3.1
+ENV OPENJPEG_VERSION 2.3.0
 
 # Load assets
 WORKDIR $ROOTDIR/
@@ -56,8 +56,8 @@ RUN cd src && tar -xvf gdal-${GDAL_VERSION}.tar.gz && cd gdal-${GDAL_VERSION} \
 
 
 ### SBT ###
-ENV SCALA_VERSION 2.12.4
-ENV SBT_VERSION 1.0.4
+ENV SCALA_VERSION 2.11.12
+ENV SBT_VERSION 1.2.0
 
 
 # Scala expects this file
