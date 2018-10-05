@@ -46,38 +46,23 @@ RUN cd src && tar -xvf openjpeg-${OPENJPEG_VERSION}.tar.gz && cd openjpeg-${OPEN
 # Compile and install GDAL
 RUN cd src && tar -xvf gdal-${GDAL_VERSION}.tar.gz && cd gdal-${GDAL_VERSION} \
     && ./configure --with-python --with-spatialite --with-pg --with-curl --with-java --with-openjpeg=$ROOTDIR \
-    && make && make install && ldconfig \
+    && make && make install && ldconfig
+
+# Deps required for GDAL JNI bindings
+RUN apt-get install -y swig ant
+
+# Compile and install GDAL JNI and Python bindings
+RUN cd $ROOTDIR && cd src/gdal-${GDAL_VERSION}/swig/java && make && make install \
     && apt-get update -y \
     && apt-get remove -y --purge build-essential wget \
     && cd $ROOTDIR && cd src/gdal-${GDAL_VERSION}/swig/python \
     && python3 setup.py build \
     && python3 setup.py install \
+    && cd $ROOTDIR && cd src/gdal-${GDAL_VERSION}/swig/java && cp -f ./.libs/*.so.* /usr/local/lib/ \
     && cd $ROOTDIR && rm -Rf src/gdal*
 
-
-### SBT ###
-ENV SCALA_VERSION 2.11.12
-ENV SBT_VERSION 1.2.3
-
-# Scala expects this file
+# Scala expects this file ¯\_(ツ)_/¯
 RUN touch /usr/lib/jvm/java-8-openjdk-amd64/release
-
-# Install Scala
-## Piping curl directly in tar
-RUN \
-  curl -fsL https://downloads.typesafe.com/scala/$SCALA_VERSION/scala-$SCALA_VERSION.tgz | tar xfz - -C /root/ && \
-  echo >> /root/.bashrc && \
-  echo "export PATH=~/scala-$SCALA_VERSION/bin:$PATH" >> /root/.bashrc
-
-# Install sbt
-RUN \
-  curl -L -o sbt-$SBT_VERSION.deb https://dl.bintray.com/sbt/debian/sbt-$SBT_VERSION.deb && \
-  dpkg -i sbt-$SBT_VERSION.deb && \
-  rm sbt-$SBT_VERSION.deb && \
-  apt-get update && \
-  apt-get install sbt && \
-  sbt sbtVersion
-
 
 # Output version and capabilities by default.
 CMD gdalinfo --version && gdalinfo --formats && ogrinfo --formats
