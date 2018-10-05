@@ -57,8 +57,7 @@ RUN cd src && tar -xvf gdal-${GDAL_VERSION}.tar.gz && cd gdal-${GDAL_VERSION} \
 
 ### SBT ###
 ENV SCALA_VERSION 2.11.12
-ENV SBT_VERSION 1.2.0
-
+ENV SBT_VERSION 1.2.3
 
 # Scala expects this file
 RUN touch /usr/lib/jvm/java-8-openjdk-amd64/release
