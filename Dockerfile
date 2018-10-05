@@ -58,7 +58,7 @@ RUN cd $ROOTDIR && cd src/gdal-${GDAL_VERSION}/swig/java && make && make install
     && cd $ROOTDIR && cd src/gdal-${GDAL_VERSION}/swig/python \
     && python3 setup.py build \
     && python3 setup.py install \
-    && cd $ROOTDIR && cd src/gdal-${GDAL_VERSION}/swig/java && cp -f ./.libs/*.so.* /usr/local/lib/ \
+    && cd $ROOTDIR && cd src/gdal-${GDAL_VERSION}/swig/java && cp -f ./.libs/*.so* /usr/local/lib/ \
     && cd $ROOTDIR && rm -Rf src/gdal*
 
 # Scala expects this file ¯\_(ツ)_/¯
