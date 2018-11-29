@@ -1,4 +1,4 @@
-FROM openjdk:8u181
+FROM openjdk:8-alpine
 
 ### GDAL 2.3.2 ###
 ENV ROOTDIR /usr/local/
@@ -6,36 +6,35 @@ ENV LD_LIBRARY_PATH /usr/local/lib
 ENV GDAL_VERSION 2.3.2
 ENV OPENJPEG_VERSION 2.3.0
 
+### Apache Ant 1.10.5 ###
+ENV ANT_VERSION 1.10.5
+ENV ANT_HOME $ROOTDIR/src/apache-ant-${ANT_VERSION}/
+ENV PATH ${ANT_HOME}/bin:${PATH}
+
 # Load assets
 WORKDIR $ROOTDIR/
 
 ADD http://download.osgeo.org/gdal/${GDAL_VERSION}/gdal-${GDAL_VERSION}.tar.gz $ROOTDIR/src/
 ADD https://github.com/uclouvain/openjpeg/archive/v${OPENJPEG_VERSION}.tar.gz $ROOTDIR/src/openjpeg-${OPENJPEG_VERSION}.tar.gz
+ADD https://www.apache.org/dist/ant/binaries/apache-ant-${ANT_VERSION}-bin.tar.gz $ROOTDIR/src/ant-${ANT_VERSION}.tar.gz
 
 # Install basic dependencies
-RUN apt-get update -y && apt-get install -y \
-    software-properties-common \
-    python3-software-properties \
-    build-essential \
+RUN apk update && apk add \
+    build-base \
+    gcc \
+    abuild \
+    binutils \
     python-dev \
     python3-dev \
-    python-numpy \
-    python3-numpy \
-    libspatialite-dev \
-    sqlite3 \
-    libpq-dev \
-    libcurl4-gnutls-dev \
-    libproj-dev \
-    libxml2-dev \
-    libgeos-dev \
-    libnetcdf-dev \
-    libpoppler-dev \
-    libspatialite-dev \
-    libhdf4-alt-dev \
-    libhdf5-serial-dev \
     wget \
     bash-completion \
-    cmake
+    make \
+    cmake \
+    linux-headers \
+    libffi-dev \
+    jpeg-dev \
+    openjpeg-dev \
+    libpng-dev
 
 # Compile and install OpenJPEG
 RUN cd src && tar -xvf openjpeg-${OPENJPEG_VERSION}.tar.gz && cd openjpeg-${OPENJPEG_VERSION}/ \
@@ -46,20 +45,24 @@ RUN cd src && tar -xvf openjpeg-${OPENJPEG_VERSION}.tar.gz && cd openjpeg-${OPEN
 
 # Compile and install GDAL
 RUN cd src && tar -xvf gdal-${GDAL_VERSION}.tar.gz && cd gdal-${GDAL_VERSION} \
-    && ./configure --with-python --with-spatialite --with-pg --with-curl --with-java --with-openjpeg=$ROOTDIR \
-    && make && make install && ldconfig
+    && ./configure --with-python  --with-curl --with-java=${JAVA_HOME} --with-openjpeg=$ROOTDIR \
+    && make && make install
 
 # Deps required for GDAL JNI bindings
-RUN apt-get install -y swig ant
+RUN apk add swig
+
+RUN apk update
+
+# Untar ant
+RUN cd src && tar -xvf ant-${ANT_VERSION}.tar.gz
 
 # Compile and install GDAL JNI and Python bindings
 RUN cd $ROOTDIR && cd src/gdal-${GDAL_VERSION}/swig/java && make && make install \
-    && apt-get update -y \
-    && apt-get remove -y --purge build-essential wget \
     && cd $ROOTDIR && cd src/gdal-${GDAL_VERSION}/swig/python \
     && python3 setup.py build \
     && python3 setup.py install \
     && cd $ROOTDIR && cd src/gdal-${GDAL_VERSION}/swig/java && cp -f ./.libs/*.so* /usr/local/lib/ \
+    && cd $ROOTDIR && cd src/gdal-${GDAL_VERSION}/swig/java && cp -f gdal.jar /usr/local/lib/ \
     && cd $ROOTDIR && rm -Rf src/gdal*
 
 RUN touch ${JAVA_HOME}/release
