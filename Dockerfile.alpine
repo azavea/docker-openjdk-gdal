@@ -40,13 +40,13 @@ RUN apk update && apk add \
 RUN cd src && tar -xvf openjpeg-${OPENJPEG_VERSION}.tar.gz && cd openjpeg-${OPENJPEG_VERSION}/ \
     && mkdir build && cd build \
     && cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$ROOTDIR \
-    && make && make install && make clean \
+    && make -j3 && make -j3 install && make -j3 clean \
     && cd $ROOTDIR && rm -Rf src/openjpeg*
 
 # Compile and install GDAL
 RUN cd src && tar -xvf gdal-${GDAL_VERSION}.tar.gz && cd gdal-${GDAL_VERSION} \
     && ./configure --with-python  --with-curl --with-java=${JAVA_HOME} --with-openjpeg=$ROOTDIR \
-    && make && make install
+    && make -j3 && make -j3 install
 
 # Deps required for GDAL JNI bindings
 RUN apk add swig
@@ -57,7 +57,7 @@ RUN apk update
 RUN cd src && tar -xvf ant-${ANT_VERSION}.tar.gz
 
 # Compile and install GDAL JNI and Python bindings
-RUN cd $ROOTDIR && cd src/gdal-${GDAL_VERSION}/swig/java && make && make install \
+RUN cd $ROOTDIR && cd src/gdal-${GDAL_VERSION}/swig/java && make -j3 && make -j3 install \
     && cd $ROOTDIR && cd src/gdal-${GDAL_VERSION}/swig/python \
     && python3 setup.py build \
     && python3 setup.py install \
