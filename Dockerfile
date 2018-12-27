@@ -30,7 +30,6 @@ RUN apt-get update -y && apt-get install -y \
     libgeos-dev \
     libnetcdf-dev \
     libpoppler-dev \
-    libspatialite-dev \
     libhdf4-alt-dev \
     libhdf5-serial-dev \
     wget \
@@ -41,19 +40,19 @@ RUN apt-get update -y && apt-get install -y \
 RUN cd src && tar -xvf openjpeg-${OPENJPEG_VERSION}.tar.gz && cd openjpeg-${OPENJPEG_VERSION}/ \
     && mkdir build && cd build \
     && cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$ROOTDIR \
-    && make && make install && make clean \
+    && make -j3 && make -j3 install && make -j3 clean \
     && cd $ROOTDIR && rm -Rf src/openjpeg*
 
 # Compile and install GDAL
 RUN cd src && tar -xvf gdal-${GDAL_VERSION}.tar.gz && cd gdal-${GDAL_VERSION} \
-    && ./configure --with-python --with-spatialite --with-pg --with-curl --with-java --with-openjpeg=$ROOTDIR \
-    && make && make install && ldconfig
+    && ./configure --with-python --with-spatialite --with-pg --with-curl --with-java --with-poppler --with-openjpeg=$ROOTDIR \
+    && make -j3 && make -j3 install && ldconfig
 
 # Deps required for GDAL JNI bindings
 RUN apt-get install -y swig ant
 
 # Compile and install GDAL JNI and Python bindings
-RUN cd $ROOTDIR && cd src/gdal-${GDAL_VERSION}/swig/java && make && make install \
+RUN cd $ROOTDIR && cd src/gdal-${GDAL_VERSION}/swig/java && make -j3 && make -j3 install \
     && apt-get update -y \
     && apt-get remove -y --purge build-essential wget \
     && cd $ROOTDIR && cd src/gdal-${GDAL_VERSION}/swig/python \
