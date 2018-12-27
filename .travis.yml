@@ -7,3 +7,10 @@ env:
 
 script:
   - ./scripts/cibuild
+
+deploy:
+  - provider: script
+    script: "scripts/cipublish"
+    on:
+      repo: azavea/docker-openjdk-gdal
+      branch: master
