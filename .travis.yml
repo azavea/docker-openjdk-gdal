@@ -3,7 +3,7 @@ services: docker
 
 env:
   - GDAL_VERSION=2.3.2 OPENJPEG_VERSION=2.3.0 VARIANT=slim
-  - GDAL_VERSION=2.3.2 OPENJPEG_VERSION=2.3.0 VARIANT=alpine
+  - GDAL_VERSION=2.3.2 OPENJPEG_VERSION=2.3.0 ANT_VERSION=1.10.5 VARIANT=alpine
 
 script:
   - ./scripts/cibuild

@@ -1,6 +1,5 @@
 FROM openjdk:8u181
 
-### GDAL 2.3.2 ###
 ENV ROOTDIR /usr/local/
 ENV LD_LIBRARY_PATH /usr/local/lib
 ENV GDAL_VERSION %%GDAL_VERSION%%

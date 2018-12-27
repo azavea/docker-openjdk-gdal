@@ -1,13 +1,11 @@
 FROM openjdk:8-alpine
 
-### GDAL 2.3.2 ###
 ENV ROOTDIR /usr/local/
 ENV LD_LIBRARY_PATH /usr/local/lib
-ENV GDAL_VERSION 2.3.2
-ENV OPENJPEG_VERSION 2.3.0
+ENV GDAL_VERSION %%GDAL_VERSION%%
+ENV OPENJPEG_VERSION %%OPENJPEG_VERSION%%
 
-### Apache Ant 1.10.5 ###
-ENV ANT_VERSION 1.10.5
+ENV ANT_VERSION %%ANT_VERSION%%
 ENV ANT_HOME $ROOTDIR/src/apache-ant-${ANT_VERSION}/
 ENV PATH ${ANT_HOME}/bin:${PATH}
 
@@ -45,7 +43,7 @@ RUN cd src && tar -xvf openjpeg-${OPENJPEG_VERSION}.tar.gz && cd openjpeg-${OPEN
 
 # Compile and install GDAL
 RUN cd src && tar -xvf gdal-${GDAL_VERSION}.tar.gz && cd gdal-${GDAL_VERSION} \
-    && ./configure --with-python  --with-curl --with-java=${JAVA_HOME} --with-openjpeg=$ROOTDIR \
+    && ./configure --with-python --with-curl --with-java=${JAVA_HOME} --with-openjpeg=$ROOTDIR \
     && make -j3 && make -j3 install
 
 # Deps required for GDAL JNI bindings
