@@ -1,0 +1,9 @@
+language: bash
+services: docker
+
+env:
+  - GDAL_VERSION=2.3.2 OPENJPEG_VERSION=2.3.0 VARIANT=slim
+  - GDAL_VERSION=2.3.2 OPENJPEG_VERSION=2.3.0 VARIANT=alpine
+
+script:
+  - ./scripts/cibuild
