@@ -21,7 +21,7 @@ GDAL_VERSION=2.3.2 OPENJPEG_VERSION=2.3.0 VARIANT=slim ./scripts/cibuild
 ```
 
 This image exists primarily to help bundle GDAL for use with
-[Geotrellis](https://github.com/geotrellis/geotrellis-server). To run Geotrellis
+[GeoTrellis](https://github.com/geotrellis/geotrellis-server). To run GeoTrellis
 tests against the images, clone
 [`geotrellis-server`](https://github.com/geotrellis/geotrellis-server)
 and use the image you created with `cibuild` to run tests:

@@ -1,69 +1,59 @@
 FROM openjdk:8-alpine
 
-ENV ROOTDIR /usr/local/
+ENV ROOTDIR /usr/local
 ENV LD_LIBRARY_PATH /usr/local/lib
 ENV GDAL_VERSION %%GDAL_VERSION%%
 ENV OPENJPEG_VERSION %%OPENJPEG_VERSION%%
 
-ENV ANT_VERSION %%ANT_VERSION%%
-ENV ANT_HOME $ROOTDIR/src/apache-ant-${ANT_VERSION}/
-ENV PATH ${ANT_HOME}/bin:${PATH}
-
 # Load assets
 WORKDIR $ROOTDIR/
+RUN mkdir -p $ROOTDIR/src
 
-ADD http://download.osgeo.org/gdal/${GDAL_VERSION}/gdal-${GDAL_VERSION}.tar.gz $ROOTDIR/src/
-ADD https://github.com/uclouvain/openjpeg/archive/v${OPENJPEG_VERSION}.tar.gz $ROOTDIR/src/openjpeg-${OPENJPEG_VERSION}.tar.gz
-ADD https://www.apache.org/dist/ant/binaries/apache-ant-${ANT_VERSION}-bin.tar.gz $ROOTDIR/src/ant-${ANT_VERSION}.tar.gz
+RUN wget -qO- \
+    http://download.osgeo.org/gdal/${GDAL_VERSION}/gdal-${GDAL_VERSION}.tar.gz | \
+    tar -xzC $ROOTDIR/src/
+RUN wget -qO- \
+    https://github.com/uclouvain/openjpeg/archive/v${OPENJPEG_VERSION}.tar.gz | \
+    tar -xzC $ROOTDIR/src/
 
-# Install basic dependencies
-RUN apk update && apk add \
-    build-base \
-    gcc \
-    abuild \
-    binutils \
-    python-dev \
-    python3-dev \
-    wget \
-    bash-completion \
-    make \
-    cmake \
-    linux-headers \
-    libffi-dev \
-    jpeg-dev \
-    openjpeg-dev \
-    libpng-dev
-
-# Compile and install OpenJPEG
-RUN cd src && tar -xvf openjpeg-${OPENJPEG_VERSION}.tar.gz && cd openjpeg-${OPENJPEG_VERSION}/ \
+RUN set -ex \
+    && apk update \
+    # Install runtime dependencies
+    && apk add --no-cache \
+       git \
+       bash-completion \
+       python-dev \
+       python3-dev \
+       libffi-dev \
+       jpeg-dev \
+       openjpeg-dev \
+       libpng-dev \
+       linux-headers \
+    # Install common build dependencies
+    && apk add --no-cache --virtual .build-deps \
+       gcc \
+       cmake \
+       build-base \
+       make \
+       swig \
+       apache-ant \
+    # Compile and install OpenJPEG
+    && cd src/openjpeg-${OPENJPEG_VERSION} \
     && mkdir build && cd build \
     && cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$ROOTDIR \
     && make -j3 && make -j3 install && make -j3 clean \
-    && cd $ROOTDIR && rm -Rf src/openjpeg*
-
-# Compile and install GDAL
-RUN cd src && tar -xvf gdal-${GDAL_VERSION}.tar.gz && cd gdal-${GDAL_VERSION} \
+    && cd $ROOTDIR && rm -Rf src/openjpeg* \
+    # Compile and install GDAL
+    && cd src/gdal-${GDAL_VERSION} \
     && ./configure --with-python --with-curl --with-java=${JAVA_HOME} --with-openjpeg=$ROOTDIR \
-    && make -j3 && make -j3 install
-
-# Deps required for GDAL JNI bindings
-RUN apk add swig
-
-RUN apk update
-
-# Untar ant
-RUN cd src && tar -xvf ant-${ANT_VERSION}.tar.gz
-
-# Compile and install GDAL JNI and Python bindings
-RUN cd $ROOTDIR && cd src/gdal-${GDAL_VERSION}/swig/java && make -j3 && make -j3 install \
-    && cd $ROOTDIR && cd src/gdal-${GDAL_VERSION}/swig/python \
+    && make -j3 && make -j3 install \
+    # Compile Python and Java bindings for GDAL
+    && cd $ROOTDIR/src/gdal-${GDAL_VERSION}/swig/java && make -j3 && make -j3 install \
+    && cd $ROOTDIR/src/gdal-${GDAL_VERSION}/swig/python \
     && python3 setup.py build \
     && python3 setup.py install \
-    && cd $ROOTDIR && cd src/gdal-${GDAL_VERSION}/swig/java && cp -f ./.libs/*.so* /usr/local/lib/ \
-    && cd $ROOTDIR && cd src/gdal-${GDAL_VERSION}/swig/java && cp -f gdal.jar /usr/local/lib/ \
-    && cd $ROOTDIR && rm -Rf src/gdal*
-
-RUN touch ${JAVA_HOME}/release
-
-# Output version and capabilities by default.
-CMD gdalinfo --version && gdalinfo --formats && ogrinfo --formats
+    && cd $ROOTDIR/src/gdal-${GDAL_VERSION}/swig/java && cp -f ./.libs/*.so* $LD_LIBRARY_PATH \
+    && cp -f gdal.jar $LD_LIBRARY_PATH \
+    && cd $ROOTDIR && rm -Rf src/gdal* \
+    # Remove build dependencies
+    && apk del .build-deps \
