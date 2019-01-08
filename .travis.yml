@@ -13,4 +13,4 @@ deploy:
     script: "scripts/cipublish"
     on:
       repo: azavea/docker-openjdk-gdal
-      branch: master
+      branch: feature/jfc/port-dockerfiles
