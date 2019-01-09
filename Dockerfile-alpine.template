@@ -1,4 +1,4 @@
-FROM openjdk:8-alpine
+FROM openjdk:%%OPENJDK_VERSION%%-alpine
 
 ENV ROOTDIR /usr/local
 ENV LD_LIBRARY_PATH /usr/local/lib
@@ -17,9 +17,8 @@ RUN wget -qO- \
     tar -xzC $ROOTDIR/src/
 
 RUN set -ex \
-    && apk update \
     # Install runtime dependencies
-    && apk add --no-cache \
+    && apk add --update --no-cache \
        git \
        bash-completion \
        python-dev \
@@ -29,6 +28,9 @@ RUN set -ex \
        openjpeg-dev \
        libpng-dev \
        linux-headers \
+    && apk add --no-cache \
+        --repository http://dl-cdn.alpinelinux.org/alpine/edge/main \
+        proj4 \
     # Install common build dependencies
     && apk add --no-cache --virtual .build-deps \
        gcc \

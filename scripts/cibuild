@@ -20,10 +20,11 @@ if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
     else
         sed -e "s/%%GDAL_VERSION%%/$GDAL_VERSION/" \
             -e "s/%%OPENJPEG_VERSION%%/$OPENJPEG_VERSION/" \
-            -e "s/%%ANT_VERSION%%/$ANT_VERSION/" \
+            -e "s/%%OPENJDK_VERSION%%/$OPENJDK_VERSION/" \
             "Dockerfile-$VARIANT.template" > Dockerfile
 
-        docker build -t "quay.io/azavea/openjdk-gdal:$GDAL_VERSION-$VARIANT" .
+        docker build \
+            -t "quay.io/azavea/openjdk-gdal:$GDAL_VERSION-jdk$OPENJDK_VERSION-$VARIANT" .
 
         ./scripts/test
 

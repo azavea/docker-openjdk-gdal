@@ -16,6 +16,6 @@ if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
     else
         docker login -u "${QUAY_USER}" -p "${QUAY_PASSWORD}" quay.io
 
-        docker push "quay.io/azavea/openjdk-gdal:$GDAL_VERSION-$VARIANT"
+        docker push "quay.io/azavea/openjdk-gdal:$GDAL_VERSION-jdk$OPENJDK_VERSION-$VARIANT"
     fi
 fi

@@ -18,8 +18,20 @@ if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
     if [ "${1:-}" = "--help" ]; then
         usage
     else
-        docker \
-            run --rm --entrypoint gdalinfo "quay.io/azavea/openjdk-gdal:$GDAL_VERSION-$VARIANT" --version
+        docker run --rm \
+                   --entrypoint gdalinfo \
+                   "quay.io/azavea/openjdk-gdal:$GDAL_VERSION-jdk$OPENJDK_VERSION-$VARIANT" \
+                   --version
+
+        docker run --rm \
+                   --entrypoint gdalinfo \
+                   "quay.io/azavea/openjdk-gdal:$GDAL_VERSION-jdk$OPENJDK_VERSION-$VARIANT" \
+                   --formats
+
+        docker run --rm \
+                   --entrypoint ogrinfo \
+                   "quay.io/azavea/openjdk-gdal:$GDAL_VERSION-jdk$OPENJDK_VERSION-$VARIANT" \
+                   --formats
     fi
 fi
 
