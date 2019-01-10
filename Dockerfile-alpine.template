@@ -29,7 +29,7 @@ RUN set -ex \
        libpng-dev \
        linux-headers \
     && apk add --no-cache \
-        --repository http://dl-cdn.alpinelinux.org/alpine/edge/main \
+        --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing \
         proj4 \
     # Install common build dependencies
     && apk add --no-cache --virtual .build-deps \
