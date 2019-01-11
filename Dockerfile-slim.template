@@ -1,0 +1,67 @@
+FROM openjdk:%%OPENJDK_VERSION%%
+
+ENV ROOTDIR /usr/local
+ENV LD_LIBRARY_PATH /usr/local/lib
+ENV GDAL_VERSION %%GDAL_VERSION%%
+ENV OPENJPEG_VERSION %%OPENJPEG_VERSION%%
+
+# Load assets
+WORKDIR $ROOTDIR/
+RUN mkdir -p $ROOTDIR/src
+
+RUN wget -qO- \
+    http://download.osgeo.org/gdal/${GDAL_VERSION}/gdal-${GDAL_VERSION}.tar.gz | \
+    tar -xzC $ROOTDIR/src/
+RUN wget -qO- \
+    https://github.com/uclouvain/openjpeg/archive/v${OPENJPEG_VERSION}.tar.gz | \
+    tar -xzC $ROOTDIR/src/
+
+RUN set -ex \
+    # Runtime dependencies
+    && deps=" \
+       python-dev \
+       python3-dev \
+       python-numpy \
+       python3-numpy \
+       bash-completion \
+       libspatialite-dev \
+       libpq-dev \
+       libcurl4-gnutls-dev \
+       libproj-dev \
+       libxml2-dev \
+       libgeos-dev \
+       libnetcdf-dev \
+       libpoppler-dev \
+       libhdf4-alt-dev \
+       libhdf5-serial-dev \
+    " \
+    # Build dependencies
+    && buildDeps=" \
+       build-essential \
+       cmake \
+       swig \
+       ant \
+    "\
+    && apt-get update && apt-get install -y $buildDeps $deps --no-install-recommends \
+    # Compile and install OpenJPEG
+    && cd src/openjpeg-${OPENJPEG_VERSION} \
+    && mkdir build && cd build \
+    && cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$ROOTDIR \
+    && make -j3 && make -j3 install && make -j3 clean \
+    && cd $ROOTDIR && rm -Rf src/openjpeg* \
+    # Compile and install GDAL
+    && cd src/gdal-${GDAL_VERSION} \
+    && ./configure --with-python --with-spatialite --with-pg --with-curl --with-java \
+                   --with-poppler --with-openjpeg=$ROOTDIR \
+    && make -j3 && make -j3 install && ldconfig \
+    # Compile Python and Java bindings for GDAL
+    && cd $ROOTDIR/src/gdal-${GDAL_VERSION}/swig/java && make -j3 && make -j3 install \
+    && cd $ROOTDIR/src/gdal-${GDAL_VERSION}/swig/python \
+    && python3 setup.py build \
+    && python3 setup.py install \
+    && cd $ROOTDIR/src/gdal-${GDAL_VERSION}/swig/java && cp -f ./.libs/*.so* $LD_LIBRARY_PATH \
+    && cp -f gdal.jar $LD_LIBRARY_PATH \
+    && cd $ROOTDIR && rm -Rf src/gdal* \
+    # Remove build dependencies
+    && apt-get purge -y --auto-remove $buildDeps \
+    && rm -rf /var/lib/apt/lists/*
