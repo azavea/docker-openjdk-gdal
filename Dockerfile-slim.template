@@ -41,6 +41,7 @@ RUN set -ex \
        cmake \
        swig \
        ant \
+       pkg-config \
     "\
     && apt-get update && apt-get install -y $buildDeps $deps --no-install-recommends \
     # Compile and install OpenJPEG
