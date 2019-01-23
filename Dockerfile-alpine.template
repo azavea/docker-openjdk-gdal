@@ -49,13 +49,11 @@ RUN set -ex \
     && cd src/gdal-${GDAL_VERSION} \
     && ./configure --with-python --with-curl --with-java=${JAVA_HOME} --with-openjpeg=$ROOTDIR \
     && make -j3 && make -j3 install \
-    # Compile Python and Java bindings for GDAL
+    # Compile Python bindings for GDAL
     && cd $ROOTDIR/src/gdal-${GDAL_VERSION}/swig/java && make -j3 && make -j3 install \
     && cd $ROOTDIR/src/gdal-${GDAL_VERSION}/swig/python \
     && python3 setup.py build \
     && python3 setup.py install \
-    && cd $ROOTDIR/src/gdal-${GDAL_VERSION}/swig/java && cp -f ./.libs/*.so* $LD_LIBRARY_PATH \
-    && cp -f gdal.jar $LD_LIBRARY_PATH \
     && cd $ROOTDIR && rm -Rf src/gdal* \
     # Remove build dependencies
     && apk del .build-deps \
