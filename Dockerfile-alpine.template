@@ -31,6 +31,7 @@ RUN set -ex \
     && apk add --no-cache \
         --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing \
         proj4 \
+        proj4-dev \
     # Install common build dependencies
     && apk add --no-cache --virtual .build-deps \
        gcc \
