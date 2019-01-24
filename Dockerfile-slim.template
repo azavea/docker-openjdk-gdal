@@ -55,7 +55,7 @@ RUN set -ex \
     && ./configure --with-python --with-spatialite --with-pg --with-curl --with-java \
                    --with-poppler --with-openjpeg=$ROOTDIR \
     && make -j3 && make -j3 install && ldconfig \
-    # Compile Python bindings for GDAL
+    # Compile Python and Java bindings for GDAL
     && cd $ROOTDIR/src/gdal-${GDAL_VERSION}/swig/java && make -j3 && make -j3 install \
     && cd $ROOTDIR/src/gdal-${GDAL_VERSION}/swig/python \
     && python3 setup.py build \
