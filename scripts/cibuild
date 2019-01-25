@@ -24,7 +24,7 @@ if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
             "Dockerfile-$VARIANT.template" > Dockerfile
 
         # Strip the patch number off of GDAL_VERSION for tagging
-        GDAL_MAJOR_VERSION="${GDAL_VERSION:0:3}"
+        GDAL_MAJOR_VERSION=$(echo "${GDAL_VERSION}" | cut -d "." -f 1,2)
 
         docker build \
             -t "quay.io/azavea/openjdk-gdal:$GDAL_MAJOR_VERSION-jdk$OPENJDK_VERSION-$VARIANT" .
