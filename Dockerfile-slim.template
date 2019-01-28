@@ -60,8 +60,6 @@ RUN set -ex \
     && cd $ROOTDIR/src/gdal-${GDAL_VERSION}/swig/python \
     && python3 setup.py build \
     && python3 setup.py install \
-    && cd $ROOTDIR/src/gdal-${GDAL_VERSION}/swig/java && cp -f ./.libs/*.so* $LD_LIBRARY_PATH \
-    && cp -f gdal.jar $LD_LIBRARY_PATH \
     && cd $ROOTDIR && rm -Rf src/gdal* \
     # Remove build dependencies
     && apt-get purge -y --auto-remove $buildDeps \

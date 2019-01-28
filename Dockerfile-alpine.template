@@ -31,6 +31,7 @@ RUN set -ex \
     && apk add --no-cache \
         --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing \
         proj4 \
+        proj4-dev \
     # Install common build dependencies
     && apk add --no-cache --virtual .build-deps \
        gcc \
@@ -54,8 +55,6 @@ RUN set -ex \
     && cd $ROOTDIR/src/gdal-${GDAL_VERSION}/swig/python \
     && python3 setup.py build \
     && python3 setup.py install \
-    && cd $ROOTDIR/src/gdal-${GDAL_VERSION}/swig/java && cp -f ./.libs/*.so* $LD_LIBRARY_PATH \
-    && cp -f gdal.jar $LD_LIBRARY_PATH \
     && cd $ROOTDIR && rm -Rf src/gdal* \
     # Remove build dependencies
     && apk del .build-deps \
