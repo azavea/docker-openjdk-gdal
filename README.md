@@ -11,13 +11,14 @@ are also installed for your convenience.
 * `GDAL_VERSION` - Version number for GDAL installation
 * `OPENJPEG_VERSION` - Version number for OpenJPEG installation
 * `VARIANT` - Base container image variant (`alpine` or `slim`)
+* `OPENJDK_VERSION`- Base container image JDK version
 
 ### Testing
 
 An example of how to use `cibuild` to build and test an image:
 
 ```
-GDAL_VERSION=2.3.2 OPENJPEG_VERSION=2.3.0 VARIANT=slim ./scripts/cibuild
+GDAL_VERSION=2.3.2 OPENJPEG_VERSION=2.3.0 VARIANT=slim OPENJDK_VERSION=8 ./scripts/cibuild
 ```
 
 This image exists primarily to help bundle GDAL for use with
