@@ -28,6 +28,7 @@ RUN set -ex \
        openjpeg-dev \
        libpng-dev \
        linux-headers \
+       curl-dev \
     && apk add --no-cache \
         --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing \
         proj4 \
