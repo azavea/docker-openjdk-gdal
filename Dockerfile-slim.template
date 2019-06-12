@@ -52,7 +52,7 @@ RUN set -ex \
     && cd $ROOTDIR && rm -Rf src/openjpeg* \
     # Compile and install GDAL
     && cd src/gdal-${GDAL_VERSION} \
-    && ./configure --with-python --with-spatialite --with-pg --with-curl --with-java \
+    && ./configure --with-python --with-spatialite --with-pg --with-curl --with-java=$JAVA_HOME \
                    --with-poppler --with-openjpeg=$ROOTDIR \
     && make -j3 && make -j3 install && ldconfig \
     # Compile Python and Java bindings for GDAL
