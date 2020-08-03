@@ -18,16 +18,22 @@ if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
     if [ "${1:-}" = "--help" ]; then
         usage
     else
+        CORES=${CORES:=3}
+        # Strip the patch number off of GDAL_VERSION for tagging
+        GDAL_MAJOR_VERSION=$(echo "${GDAL_VERSION}" | cut -d "." -f 1,2)
+        GDAL_MAJOR_VERSION_FIRST=$(echo "${GDAL_VERSION}" | cut -d "." -f 1)
+        if [[ $GDAL_MAJOR_VERSION_FIRST == "2" ]]; then
+            LIBPROJ_VERSION=${LIBPROJ_VERSION:=4.9.3}
+        fi
+        LIBPROJ_VERSION=${LIBPROJ_VERSION:=7.1.0}
+
         sed -e "s/%%GDAL_VERSION%%/$GDAL_VERSION/" \
             -e "s/%%OPENJPEG_VERSION%%/$OPENJPEG_VERSION/" \
             -e "s/%%OPENJDK_VERSION%%/$OPENJDK_VERSION/" \
-            "Dockerfile-$VARIANT.template" > Dockerfile
+            -e "s/%%LIBPROJ_VERSION%%/$LIBPROJ_VERSION/" \
+            -e "s/%%CORES%%/$CORES/" "Dockerfile-$VARIANT.template" > Dockerfile
 
-        # Strip the patch number off of GDAL_VERSION for tagging
-        GDAL_MAJOR_VERSION=$(echo "${GDAL_VERSION}" | cut -d "." -f 1,2)
-
-        docker build \
-            -t "quay.io/azavea/openjdk-gdal:$GDAL_MAJOR_VERSION-jdk$OPENJDK_VERSION-$VARIANT" .
+        docker build -t "quay.io/azavea/openjdk-gdal:$GDAL_MAJOR_VERSION-jdk$OPENJDK_VERSION-$VARIANT" .
 
         ./scripts/test
 

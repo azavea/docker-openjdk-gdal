@@ -4,17 +4,22 @@ ENV ROOTDIR /usr/local
 ENV LD_LIBRARY_PATH /usr/local/lib
 ENV GDAL_VERSION %%GDAL_VERSION%%
 ENV OPENJPEG_VERSION %%OPENJPEG_VERSION%%
+ENV LIBPROJ_VERSION %%LIBPROJ_VERSION%%
+ENV CORES %%CORES%%
 
 # Load assets
 WORKDIR $ROOTDIR/
 RUN mkdir -p $ROOTDIR/src
 
 RUN wget -qO- \
-    http://download.osgeo.org/gdal/${GDAL_VERSION}/gdal-${GDAL_VERSION}.tar.gz | \
+    https://download.osgeo.org/gdal/${GDAL_VERSION}/gdal-${GDAL_VERSION}.tar.gz | \
     tar -xzC $ROOTDIR/src/
 RUN wget -qO- \
     https://github.com/uclouvain/openjpeg/archive/v${OPENJPEG_VERSION}.tar.gz | \
     tar -xzC $ROOTDIR/src/
+RUN wget -qO- \
+      https://download.osgeo.org/proj/proj-${LIBPROJ_VERSION}.tar.gz | \
+      tar -xzC $ROOTDIR/src/
 
 RUN set -ex \
     # Runtime dependencies
@@ -27,13 +32,16 @@ RUN set -ex \
        libspatialite-dev \
        libpq-dev \
        libcurl4-gnutls-dev \
-       libproj-dev \
        libxml2-dev \
        libgeos-dev \
        libnetcdf-dev \
        libpoppler-dev \
        libhdf4-alt-dev \
        libhdf5-serial-dev \
+       libpoppler-private-dev \
+       sqlite3 \
+       libsqlite3-dev \
+       libtiff-dev \
     " \
     # Build dependencies
     && buildDeps=" \
@@ -43,20 +51,23 @@ RUN set -ex \
        ant \
        pkg-config \
     "\
-    && apt-get update && apt-get install -y $buildDeps $deps --no-install-recommends \
+    && apt-get update -y && apt-get install -y $buildDeps $deps --no-install-recommends \
     # Compile and install OpenJPEG
     && cd src/openjpeg-${OPENJPEG_VERSION} \
     && mkdir build && cd build \
     && cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$ROOTDIR \
-    && make -j3 && make -j3 install && make -j3 clean \
+    && make -j${CORES} && make -j${CORES} install && make -j${CORES} clean \
     && cd $ROOTDIR && rm -Rf src/openjpeg* \
+    # Compile and install PROJ
+    && cd src/proj-${LIBPROJ_VERSION} && ./configure && make -j${CORES} && make install \
+    && cd $ROOTDIR && rm -Rf proj* \
     # Compile and install GDAL
     && cd src/gdal-${GDAL_VERSION} \
     && ./configure --with-python --with-spatialite --with-pg --with-curl --with-java=$JAVA_HOME \
                    --with-poppler --with-openjpeg=$ROOTDIR \
-    && make -j3 && make -j3 install && ldconfig \
+    && make -j${CORES} && make -j${CORES} install && ldconfig \
     # Compile Python and Java bindings for GDAL
-    && cd $ROOTDIR/src/gdal-${GDAL_VERSION}/swig/java && make -j3 && make -j3 install \
+    && cd $ROOTDIR/src/gdal-${GDAL_VERSION}/swig/java && make -j${CORES} && make -j${CORES} install \
     && cd $ROOTDIR/src/gdal-${GDAL_VERSION}/swig/python \
     && python3 setup.py build \
     && python3 setup.py install \
