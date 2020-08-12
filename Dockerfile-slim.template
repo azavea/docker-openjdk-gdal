@@ -18,8 +18,8 @@ RUN wget -qO- \
     https://github.com/uclouvain/openjpeg/archive/v${OPENJPEG_VERSION}.tar.gz | \
     tar -xzC $ROOTDIR/src/
 RUN wget -qO- \
-      https://download.osgeo.org/proj/proj-${LIBPROJ_VERSION}.tar.gz | \
-      tar -xzC $ROOTDIR/src/
+    https://download.osgeo.org/proj/proj-${LIBPROJ_VERSION}.tar.gz | \
+    tar -xzC $ROOTDIR/src/
 
 RUN set -ex \
     # Runtime dependencies

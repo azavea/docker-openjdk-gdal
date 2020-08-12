@@ -12,13 +12,15 @@ are also installed for your convenience.
 * `OPENJPEG_VERSION` - Version number for OpenJPEG installation
 * `VARIANT` - Base container image variant (`alpine` or `slim`)
 * `OPENJDK_VERSION`- Base container image JDK version
+* `LIBRPOJ_VERSION` - Version number for Proj4 installation
+* `CORES` - Amount of cores used to build libraries
 
 ### Testing
 
 An example of how to use `cibuild` to build and test an image:
 
 ```
-GDAL_VERSION=2.3.2 OPENJPEG_VERSION=2.3.0 VARIANT=slim OPENJDK_VERSION=8 ./scripts/cibuild
+GDAL_VERSION=3.1.2 OPENJDK_VERSION=8 OPENJPEG_VERSION=2.3.0 LIBPROJ_VERSION=7.1.0 CORES=3 VARIANT=slim ./scripts/cibuild
 ```
 
 This image exists primarily to help bundle GDAL for use with
@@ -34,7 +36,7 @@ docker run \
   -v $(pwd)/core:/root/core \
   -v $(pwd)/sbt:/root/sbt \
   -w /root \
-  quay.io/azavea/openjdk-gdal:2.3.2-slim \
+  quay.io/azavea/openjdk-gdal:3.1-slim \
   ./sbt "project core" test
 ```
 
@@ -50,6 +52,6 @@ docker run \
   -v $(pwd)/src:/root/src \
   -v $(pwd)/sbt:/root/sbt \
   -w /root \
-  quay.io/azavea/openjdk-gdal:2.3.2-slim \
+  quay.io/azavea/openjdk-gdal:3.1-slim \
   ./sbt "project gdal" test
 ```
