@@ -1,5 +1,7 @@
 # docker-openjdk-gdal
 
+![](https://github.com/azavea/docker-openjdk-gdal/workflows/CI/badge.svg)
+
 This repository contains a collection of templated `Dockerfile`s for image variants
 designed to support the usage of GDAL with Java bindings. Python bindings
 are also installed for your convenience.
