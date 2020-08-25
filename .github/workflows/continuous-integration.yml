@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        gdal_version: ["2.4.3", "3.1.2"]
+        openjdk_version: [8, 11]
+        openjpeg_version: ["2.3.0"]
+        variant: ["slim"]
+        include:
+          - gdal_version: "2.4.3"
+            libproj_version: "5.2.0"
+          - gdal_version: "3.1.2"
+            libproj_version: "7.1.0"
+    env:
+      DOCKER_BUILDKIT: 1
+      GDAL_VERSION: ${{ matrix.gdal_version }}
+      OPENJDK_VERSION: ${{ matrix.openjdk_version }}
+      OPENJPEG_VERSION: ${{ matrix.openjpeg_version }}
+      LIBPROJ_VERSION: ${{ matrix.libproj_version }}
+      VARIANT: ${{ matrix.variant }}
+      CORES: 3
+    steps:
+      - uses: actions/checkout@v2
+
+      - run: ./scripts/cibuild
+
+      - run: ./scripts/cipublish
+        if: github.ref == 'refs/heads/master'
+        env:
+          QUAY_USER: ${{ secrets.QUAY_IMAGES_USER }}
+          QUAY_PASSWORD: ${{ secrets.QUAY_IMAGES_PASSWORD }}
