@@ -60,7 +60,7 @@ RUN set -ex \
     && cd $ROOTDIR && rm -Rf src/openjpeg* \
     # Compile and install PROJ
     && cd src/proj-${LIBPROJ_VERSION} && ./configure && make -j${CORES} && make install \
-    && cd $ROOTDIR && rm -Rf proj* \
+    && cd $ROOTDIR && rm -Rf src/proj* \
     # Compile and install GDAL
     && cd src/gdal-${GDAL_VERSION} \
     && ./configure --with-python --with-spatialite --with-pg --with-curl --with-java=$JAVA_HOME \
